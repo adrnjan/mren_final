@@ -4,21 +4,20 @@
 #include <stdbool.h>
 #include "types.h"
 
-// Initializes/resets the priority queue
 void pq_init(void);
 
-// Checks if the queue is empty
 bool pq_is_empty(void);
 
-// Calculate the priority score
-int calculate_priority(int target_floor, int current_floor, ElevatorState current_state);
+int calculate_priority(int target_floor, int current_floor, ElevatorState current_state, int wait_so_far);
 
-// Inserts a new floor request into the binary heap
 bool pq_insert(int target_floor, int current_floor, ElevatorState current_state, int current_tick);
 
-// Extracts the request with the highest priority score
 bool pq_extract(Request *out_request);
 
 bool pq_check_and_remove_target(int floor, int current_tick, int *wait_time_out);
+
+void pq_refresh_priorities(int current_floor, ElevatorState current_state, int current_tick);
+
+int pq_size(void);
 
 #endif

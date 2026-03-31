@@ -15,27 +15,45 @@ int main() {
     printf("   Intelligent Elevator Dispatch System   \n");
     printf("-------------------------------------------------------\n\n");
 
-    // file reading
     FILE *file = fopen("scenario.txt", "r");
     if (file == NULL) {
         printf("Error: Could not open scenario.txt. Either corrupt or missing.\n");
         return 1;
     }
 
-    FileCommand commands[50]; // max commands is 50
+    FileCommand commands[50];
     int cmd_count = 0;
-    while (fscanf(file, "%d %d", &commands[cmd_count].tick,
-                  &commands[cmd_count].target_floor) == 2) {
+    int temp_tick, temp_floor;
+    while (cmd_count < 50 && fscanf(file, "%d %d", &temp_tick, &temp_floor) == 2) {
+        if (temp_floor < 1 || temp_floor > NUM_FLOORS) {
+            printf("[WARNING] Ignoring invalid floor %d (valid range: 1-%d)\n", temp_floor, NUM_FLOORS);
+            continue;
+        }
+        if (temp_tick < 1) {
+            printf("[WARNING] Ignoring invalid tick %d (must be >= 1)\n", temp_tick);
+            continue;
+        }
+        commands[cmd_count].tick = temp_tick;
+        commands[cmd_count].target_floor = temp_floor;
         cmd_count++;
     }
+    if (cmd_count >= 50) {
+        int dummy1, dummy2;
+        if (fscanf(file, "%d %d", &dummy1, &dummy2) == 2) {
+            printf("[WARNING] scenario.txt has more than 50 commands. Only the first 50 were loaded.\n");
+        }
+    }
     fclose(file);
-    printf("Loaded %d simulations from scenario.txt\n", cmd_count);
+    printf("Loaded %d commands from scenario.txt\n", cmd_count);
 
+    if (cmd_count == 0) {
+        printf("[WARNING] No valid commands loaded. Simulation will run idle.\n");
+    }
 
     int max_tick = 0;
     for (int i = 0; i < cmd_count; i++)
         if (commands[i].tick > max_tick) max_tick = commands[i].tick;
-    const int SIMULATION_LENGTH = max_tick + 15;
+    const int SIMULATION_LENGTH = max_tick + 50;
 
     Elevator my_elevator;
     pq_init();
@@ -54,8 +72,11 @@ int main() {
         for (int i = 0; i < cmd_count; i++) {
             if (commands[i].tick == tick) {
                 printf("[INPUT] Request for Floor %d\n", commands[i].target_floor);
-                pq_insert(commands[i].target_floor, my_elevator.current_floor,
-                          my_elevator.current_state, tick);
+                if (!pq_insert(commands[i].target_floor, my_elevator.current_floor,
+                               my_elevator.current_state, tick)) {
+                    printf("[WARNING] Could not enqueue request for floor %d (queue full)\n",
+                           commands[i].target_floor);
+                }
             }
         }
 
@@ -67,7 +88,6 @@ int main() {
         }
     }
 
-    // 5. Final metrics
     printf("\n------------------------------------------------\n");
     printf("               Simulation Complete!               \n");
     printf("------------------------------------------------\n");
