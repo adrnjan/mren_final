@@ -24,24 +24,28 @@ int main() {
     FileCommand commands[50];
     int cmd_count = 0;
     int temp_tick, temp_floor;
-    while (cmd_count < 50 && fscanf(file, "%d %d", &temp_tick, &temp_floor) == 2) {
+    char line[100];
+    int line_number = 0;
+    while (cmd_count < 50 && fgets(line, sizeof(line), file)) {
+        line_number++;
+        if (sscanf(line, "%d %d", &temp_tick, &temp_floor) != 2) {
+            printf("[WARNING] Ignoring malformed line %d in scenario.txt: %s", line_number, line);
+            continue;
+        }
         if (temp_floor < 1 || temp_floor > NUM_FLOORS) {
-            printf("[WARNING] Ignoring invalid floor %d (valid range: 1-%d)\n", temp_floor, NUM_FLOORS);
+            printf("[WARNING] Ignoring invalid floor %d on line %d (valid range: 1-%d)\n", temp_floor, line_number, NUM_FLOORS);
             continue;
         }
         if (temp_tick < 1) {
-            printf("[WARNING] Ignoring invalid tick %d (must be >= 1)\n", temp_tick);
+            printf("[WARNING] Ignoring invalid tick %d on line %d (must be >= 1)\n", temp_tick, line_number);
             continue;
         }
         commands[cmd_count].tick = temp_tick;
         commands[cmd_count].target_floor = temp_floor;
         cmd_count++;
     }
-    if (cmd_count >= 50) {
-        int dummy1, dummy2;
-        if (fscanf(file, "%d %d", &dummy1, &dummy2) == 2) {
-            printf("[WARNING] scenario.txt has more than 50 commands. Only the first 50 were loaded.\n");
-        }
+    if (cmd_count >= 50 && fgets(line, sizeof(line), file)) {
+        printf("[WARNING] scenario.txt has more than 50 commands. Only the first 50 were loaded.\n");
     }
     fclose(file);
     printf("Loaded %d commands from scenario.txt\n", cmd_count);
