@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "priority_queue.h"
 
-// The array representing our binary max-heap
+// array representing binary max-heap
 static Request heap[MAX_QUEUE_SIZE];
 static int heap_size = 0;
 
@@ -22,37 +22,36 @@ static void swap(Request *a, Request *b) {
 }
 
 // Calculates a dynamic priority score based on elevator's current physical state.
-// This directly addresses the logic outlined in your project proposal.
 int calculate_priority(int target_floor, int current_floor, ElevatorState current_state) {
     int score = 0;
     int distance = abs(target_floor - current_floor);
 
     if (current_state == STATE_IDLE) {
-        // If idle, prioritize the closest floor
+        // prioritize the closest floor
         score = 100 - distance; 
     } 
     else if (current_state == STATE_MOVING_UP) {
         if (target_floor > current_floor) {
-            // It's on the way up! High priority.
+            // on the way score
             score = 200 - distance; 
         } else {
-            // It's behind us. Low priority, service it later.
+            // not on the way score
             score = 50 - distance;  
         }
     } 
     else if (current_state == STATE_MOVING_DOWN) {
         if (target_floor < current_floor) {
-            // It's on the way down! High priority.
+            // on the way score
             score = 200 - distance; 
         } else {
-            // It's behind us. Low priority.
+            // not on the way score
             score = 50 - distance;  
         }
     }
     return score;
 }
 
-// Maintains the max-heap property after insertion (O(log n) time complexity)
+// Maintains the max-heap property after insertion
 static void heapify_up(int index) {
     if (index == 0) return; // Reached the root
 
@@ -61,7 +60,7 @@ static void heapify_up(int index) {
     // If the current node has a higher priority than its parent, swap them
     if (heap[index].priority_score > heap[parent_index].priority_score) {
         swap(&heap[index], &heap[parent_index]);
-        heapify_up(parent_index); // Recurse upwards
+        heapify_up(parent_index); // Recursion upwards
     }
 }
 
@@ -71,7 +70,7 @@ bool pq_insert(int target_floor, int current_floor, ElevatorState current_state,
         return false;
     }
 
-    // Create the new request and calculate its dynamic score
+    // Create the new request and assigns it a score
     Request new_req;
     new_req.target_floor = target_floor;
     new_req.priority_score = calculate_priority(target_floor, current_floor, current_state);
@@ -84,7 +83,7 @@ bool pq_insert(int target_floor, int current_floor, ElevatorState current_state,
     return true;
 }
 
-// Maintains the max-heap property after extraction (O(log n) time complexity)
+// Maintains the max-heap property after extraction
 static void heapify_down(int index) {
     int largest = index;
     int left_child = 2 * index + 1;
@@ -98,7 +97,7 @@ static void heapify_down(int index) {
         largest = right_child;
     }
 
-    // If the largest is not the current node, swap and recurse down
+    // If the largest is not the current node, swap and recurse downwards
     if (largest != index) {
         swap(&heap[index], &heap[largest]);
         heapify_down(largest);
@@ -110,14 +109,14 @@ bool pq_extract(Request *out_request) {
         return false;
     }
 
-    // The highest priority request is always at the root (index 0)
+    // The highest priority request is always at the root aka index 0
     *out_request = heap[0];
 
     // Move the last element to the root and reduce size
     heap[0] = heap[heap_size - 1];
     heap_size--;
 
-    // Bubble the new root down to its correct position
+    // bring the new root down to its correct position
     heapify_down(0);
 
     return true;
