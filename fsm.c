@@ -112,7 +112,7 @@ void fsm_step(Elevator *elevator, int current_tick, int *total_wait, int *passen
                 printf("[FSM] Doors open at floor %d. Passenger wait time: %d ticks\n",
                        elevator->current_floor, wait);
             }
-            elevator->doors_open = true; //this is just for simulation output to pring doors closing and opening, not really functional
+            elevator->doors_open = true; //this is just for simulation output to print doors closing and opening, not really functional
             has_active_request = false; //set has_active_request to false so that in next call we extract a new request
             elevator->current_state = STATE_IDLE; //set state to idle for next call
             printf("[FSM] Transition -> IDLE\n");
