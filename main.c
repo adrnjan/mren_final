@@ -26,7 +26,7 @@ int main() {
     int temp_tick, temp_floor; //temp variables to hold the tick and floor
     char line[100]; //buffer for each line (basically one row of line as we parse each line)
     int line_number = 0; //line number counter
-    while (cmd_count < 50 && fgets(line, sizeof(line), file)) { //parses the file for commands(basically reads uo to 50 rows of the txt file), fgets returns null if read error or end of file
+    while (cmd_count < 50 && fgets(line, sizeof(line), file)) { //parses the file for commands(basically reads up to 50 rows of the txt file), fgets returns null if read error or end of file
         line_number++;
         if (sscanf(line, "%d %d", &temp_tick, &temp_floor) != 2) { //sscanf checks to see if the line is inputted valid(ignores something like "1 abc")
             printf("[WARNING] Ignoring invalid line %d in scenario.txt: %s", line_number, line);
